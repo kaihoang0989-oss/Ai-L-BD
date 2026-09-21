@@ -77,6 +77,26 @@ const WORD_PAIRS = [
   ["Chủ động", "Bị động"], ["Dẫn dắt", "Theo sau"], ["Bí mật", "Công khai"],
   ["Bạn", "Người lạ"], ["Online", "Offline"], ["Đi", "Ở lại"],
   ["Yên tĩnh", "Ồn ào"], ["Riêng tư", "Công cộng"]
+
+  // Bóng chúa / drama / meme — vui và dễ diễn
+  ["Nữ hoàng", "Công chúa"], ["Chanh sả", "Bánh bèo"], ["Lấp lánh", "Lòe loẹt"], ["Neon", "Pastel"],
+  ["Glitter", "Sequin"], ["Khoe dáng", "Check body"], ["Ảnh thẻ", "Ảnh sống ảo"], ["Story", "Reels"],
+  ["Thả thính", "Thả haha"], ["Seen", "React tim"], ["Ghost", "Block"], ["Crush bí mật", "Crush công khai"],
+  ["Chốt đơn", "Chốt kèo"], ["Drama queen", "Drama king"], ["Sang chảnh", "Phông bạt"], ["Rich kid", "Flex kid"],
+  ["Bóng kín", "Bóng lộ"], ["Bóng chúa", "Bóng hoàng tử"], ["Slay queen", "Iconic king"], ["Serve", "Slay"],
+  ["Outfit cháy", "Makeup cháy"], ["Tóc tẩy", "Tóc nhuộm"], ["Nail dài", "Mi dài"], ["Mùi nước hoa", "Mùi dầu gội"],
+  ["Đi quẩy", "Đi chill"], ["Quẩy banh nóc", "Chill ban công"], ["Karaoke", "Club"], ["DJ", "Karaoke"],
+  ["Cà khịa", "Cà chớn"], ["Mỏ hỗn", "Miệng xinh"], ["Thẳng như ruột ngựa", "Vòng vo"], ["Lươn", "Cáo"],
+  ["Bắt trend", "Tạo trend"], ["Viral", "Flop"], ["Hot boy", "Hot girl"], ["Hot gay", "Hot bi"],
+  ["Top energy", "Bot energy"], ["Top chủ động", "Bot chủ động"], ["Top dịu dàng", "Bot dịu dàng"], ["Masc vibe", "Fem vibe"],
+  ["Boyfriend", "Girlfriend"], ["Situationship", "Relationship"], ["Red flag", "Ick"], ["Green flag", "Beige flag"],
+  ["Date đêm", "Date ngày"], ["Cafe date", "Movie date"], ["Nắm tay", "Khoác vai"], ["Thả tim", "Thả haha"],
+  ["Pride float", "Pride stage"], ["Cờ cầu vồng", "Cờ tiến bộ"], ["Glitter bomb", "Confetti"], ["Drag show", "Talent show"],
+  ["Heels", "Sneaker"], ["Wig", "Tóc thật"], ["Lipstick", "Lip gloss"], ["Eyeliner", "Mascara"],
+  ["Công chúa", "Nữ hoàng"], ["Hoàng tử", "Bad boy"], ["Soft boy", "Pretty boy"], ["Bear", "Otter"],
+  ["Twink", "Jock"], ["Daddy vibe", "Baby vibe"], ["Bossy", "Cute"], ["Drama", "Tea"],
+  ["Spill tea", "Drop hint"], ["Bóc phốt", "Thả hint"], ["Mời trà", "Mời drama"], ["Tâm sự", "Tám chuyện"]
+
 ];
 
 const rooms = new Map();
@@ -90,7 +110,7 @@ function publicRoom(room) {
     hostId: room.hostId,
     phase: room.phase,
     round: room.round,
-    maxPlayers: 6,
+    maxPlayers: room.maxPlayers,
     players: [...room.players.values()].map(p => ({
       id: p.id, name: p.name, alive: p.alive,
       ready: p.ready, role: room.phase === "playing" && p.alive ? undefined : undefined
@@ -100,6 +120,7 @@ function publicRoom(room) {
     descriptions: room.descriptions.map(x => ({
       playerId: x.playerId, playerName: x.playerName, text: x.text, round: x.round
     })),
+    actions: room.actions || [],
     eliminated: room.eliminated,
     tieCandidates: room.tieCandidates || []
   };
@@ -111,6 +132,7 @@ function sendPrivateWords(room) {
   for (const p of room.players.values()) {
     io.to(p.id).emit("game:private", {
       role: p.role,
+      roleTitle: p.roleTitle || (p.role === "spy" ? "Con bóng chúa" : "Con bê đê"),
       word: p.word,
       round: room.round,
       isSpy: p.role === "spy"
@@ -120,12 +142,17 @@ function sendPrivateWords(room) {
 function randomizeRoles(room) {
   const pair = WORD_PAIRS[Math.floor(Math.random() * WORD_PAIRS.length)];
   const ids = [...room.players.keys()].sort(() => Math.random() - 0.5);
-  const spies = new Set(ids.slice(0, 2));
+  const spyCount = room.maxPlayers === 4 ? 1 : 2;
+  const spies = new Set(ids.slice(0, spyCount));
+  let civilianNumber = 1;
   for (const p of room.players.values()) {
     p.alive = true;
     p.ready = false;
     p.role = spies.has(p.id) ? "spy" : "civilian";
     p.word = spies.has(p.id) ? pair[1] : pair[0];
+    // Tên vai trò hiển thị riêng cho từng người: dân thường là "Con bê đê số X",
+    // còn gián điệp nhận danh xưng "Con bóng chúa". Tên thật vẫn được giữ ở lobby.
+    p.roleTitle = spies.has(p.id) ? "Con bóng chúa" : `Con bê đê số ${civilianNumber++}`;
   }
 }
 function alivePlayers(room) {
@@ -179,15 +206,17 @@ function revealResult(room, eliminatedId) {
 }
 
 io.on("connection", socket => {
-  socket.on("room:create", ({name}, cb) => {
+  socket.on("room:create", ({name,maxPlayers}, cb) => {
     const clean = String(name || "").trim().slice(0, 20);
     if (!clean) return cb({ok:false, error:"Nhập tên trước nhé."});
     let c = code();
     while (rooms.has(c)) c = code();
+    const requestedMax = Number(maxPlayers);
+    const max = [4,6,8].includes(requestedMax) ? requestedMax : 6;
     const room = {
-      code:c, hostId:socket.id, phase:"lobby", round:0, players:new Map(),
+      code:c, hostId:socket.id, phase:"lobby", round:0, maxPlayers:max, players:new Map(),
       turnIndex:0, currentSpeakerId:null, descriptions:[], votes:{}, eliminated:[],
-      winner:null
+      winner:null, actions:[]
     };
     room.players.set(socket.id, {id:socket.id,name:clean,alive:true,ready:false});
     rooms.set(c, room);
@@ -203,7 +232,7 @@ io.on("connection", socket => {
     const room = rooms.get(c);
     if (!room) return cb({ok:false,error:"Không tìm thấy phòng."});
     if (room.phase !== "lobby") return cb({ok:false,error:"Ván đã bắt đầu."});
-    if (room.players.size >= 6) return cb({ok:false,error:"Phòng đã đủ 6 người."});
+    if (room.players.size >= room.maxPlayers) return cb({ok:false,error:`Phòng đã đủ ${room.maxPlayers} người.`});
     if (!clean) return cb({ok:false,error:"Nhập tên trước nhé."});
     if ([...room.players.values()].some(p => p.name.toLowerCase() === clean.toLowerCase()))
       return cb({ok:false,error:"Tên này đã có trong phòng."});
@@ -218,11 +247,24 @@ io.on("connection", socket => {
     p.ready = !!ready; emitRoom(room);
   });
 
+  socket.on("game:setMode", ({maxPlayers}, cb) => {
+    const room = rooms.get(socket.data.roomCode);
+    if (!room) return cb?.({ok:false,error:"Không tìm thấy phòng."});
+    if (socket.id !== room.hostId) return cb?.({ok:false,error:"Chỉ chủ phòng mới đổi chế độ."});
+    if (room.phase !== "lobby") return cb?.({ok:false,error:"Chỉ đổi chế độ khi đang ở phòng chờ."});
+    const max = Number(maxPlayers);
+    if (![4,6,8].includes(max)) return cb?.({ok:false,error:"Chế độ chỉ có 4, 6 hoặc 8 người."});
+    if (room.players.size > max) return cb?.({ok:false,error:`Hiện có ${room.players.size} người, không thể chuyển xuống ${max}.`});
+    room.maxPlayers = max;
+    emitRoom(room);
+    cb?.({ok:true});
+  });
+
   socket.on("game:start", (_, cb) => {
     const room = rooms.get(socket.data.roomCode);
     if (!room) return;
     if (socket.id !== room.hostId) return cb?.({ok:false,error:"Chỉ chủ phòng mới bắt đầu."});
-    if (room.players.size !== 6) return cb?.({ok:false,error:"Cần đủ đúng 6 người."});
+    if (room.players.size !== room.maxPlayers) return cb?.({ok:false,error:`Cần đủ đúng ${room.maxPlayers} người.`});
     randomizeRoles(room); room.round = 1; room.winner=null;
     room.eliminated=[]; room.descriptions=[]; startRound(room);
     cb?.({ok:true});
@@ -239,6 +281,21 @@ io.on("connection", socket => {
       return cb?.({ok:false,error:"Không được nói trực tiếp từ khóa của bạn."});
     room.descriptions.push({playerId:p.id,playerName:p.name,text:clean,round:room.round});
     nextSpeaker(room); emitRoom(room); cb?.({ok:true});
+  });
+
+  socket.on("game:action", ({kind, targetId}, cb) => {
+    const room = rooms.get(socket.data.roomCode);
+    if (!room) return cb?.({ok:false,error:"Không tìm thấy phòng."});
+    const from = room.players.get(socket.id);
+    const to = room.players.get(targetId);
+    if (!from || !to || !from.alive || !to.alive || from.id === to.id) return cb?.({ok:false,error:"Chọn một người chơi khác đang còn trong ván."});
+    if (!["water","brick"].includes(kind)) return cb?.({ok:false,error:"Tương tác không hợp lệ."});
+    const lines = kind === "water"
+      ? [`${from.name} hét: 'XỊT NƯỚC NÈ CƯNG!'`, `${from.name} phun một màn mưa cầu vồng vào ${to.name}.`, `${to.name} ướt nhẹp nhưng vẫn slay.`]
+      : [`${from.name} hét: 'NÈ TAO PHANG! 🧱'`, `${from.name} quăng viên gạch ống hiệu ứng vào ${to.name}.`, `${to.name}: cú này đau lòng hơn đau người.`];
+    const action={kind,from:from.name,to:to.name,line:lines[Math.floor(Math.random()*lines.length)]};
+    room.actions=room.actions||[]; room.actions.push(action); if(room.actions.length>60) room.actions.shift();
+    io.to(room.code).emit("game:action",action); emitRoom(room); cb?.({ok:true});
   });
 
   socket.on("game:vote", ({targetId}, cb) => {
@@ -293,7 +350,7 @@ io.on("connection", socket => {
     const room=rooms.get(socket.data.roomCode); if(!room) return;
     if(socket.id!==room.hostId) return cb?.({ok:false,error:"Chỉ chủ phòng mới có thể tạo ván mới."});
     for(const p of room.players.values()){p.alive=true;p.role=undefined;p.word=undefined;}
-    room.phase="lobby"; room.round=0; room.winner=null; room.eliminated=[]; room.descriptions=[]; room.votes={};
+    room.phase="lobby"; room.round=0; room.tieCandidates=[]; room.tieVotes={}; room.winner=null; room.eliminated=[]; room.descriptions=[]; room.votes={}; room.actions=[];
     emitRoom(room); cb?.({ok:true});
   });
 
@@ -310,4 +367,4 @@ io.on("connection", socket => {
   });
 });
 
-server.listen(PORT,()=>console.log(`Server running on port ${PORT}`));
+server.listen(PORT,"0.0.0.0",()=>console.log(`Server running on port ${PORT}`));
