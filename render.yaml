@@ -1,7 +1,7 @@
 services:
   - type: web
-    name: ai-la-gian-diep
-    runtime: node
+    name: sauna-p8
+    env: node
     buildCommand: npm install
     startCommand: npm start
     plan: free

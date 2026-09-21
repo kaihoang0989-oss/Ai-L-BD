@@ -1,28 +1,27 @@
-# AI LÀ CON BÓNG CHÚA 🌈
+# Sauna P8 🌈♨️
 
-Game social deduction realtime fan-made bằng Node.js + Express + Socket.IO.
+Social multiplayer prototype inspired by the feel of classic 2D avatar worlds, with an original sauna-city setting.
 
-## Chế độ chơi
-- 4 người: 1 Con Bóng + 3 Người Thường
-- 6 người: 2 Con Bóng + 4 Người Thường
-- 8 người: 2 Con Bóng + 6 Người Thường
+## Features
+- 1 login per player, shared room code
+- Up to 8 players per room
+- Character customization: hair, shirt, body
+- City map: Trung tâm thương mại, GC Bar, Sauna P8, Hồ Ha Le, Ổ Bê Đê Hà Nội
+- Sauna P8 rooms: sảnh, xông hơi nước, xông khô, phòng tối, bồn ngâm chung, phòng sục, lounge khăn, Phòng Đờ U Đu Nặng Đụ
+- Movement, chat bubbles above avatars
+- Friendly interactions/emotes: wave, hug, high-five, splash, dance, sit, lie
+- Responsive mobile UI
+- Realtime Socket.IO
 
-Chủ phòng chọn chế độ khi tạo phòng hoặc đổi chế độ trong lobby. Phòng chỉ bắt đầu khi đủ đúng số người.
-
-## Chạy local
-```bash
+## Run locally
 npm install
 npm start
-```
-Mở http://localhost:3000
+Open http://localhost:10000
 
-## Lưu ý
-- Room state lưu trong RAM; restart server sẽ mất phòng đang chơi.
-- Speech dùng giọng tổng hợp của trình duyệt.
-- Hiệu ứng ném gạch/xịt nước chỉ là tương tác vui trong game, không gây thương tích thật.
+## Deploy
+Push these files to GitHub and deploy as a Render Web Service.
+Build: npm install
+Start: npm start
 
-
-## Danh xưng vai trò v5
-- Người thường nhận danh xưng riêng: "Con bê đê số 1", "Con bê đê số 2", ...
-- Người thuộc phe bóng nhận danh xưng: "Con bóng chúa".
-- Tên người chơi thật vẫn được giữ trong phòng chờ để mọi người nhận diện và bình chọn.
+## Safety/design note
+The prototype keeps interactions non-explicit. The "phòng tối" is a social room, and beds/furniture are decorative/emote surfaces. No drug-sale marketplace or sexual activity system is included.

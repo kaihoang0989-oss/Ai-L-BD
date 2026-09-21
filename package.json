@@ -1,12 +1,9 @@
 {
-  "name": "ai-la-gian-diep-online",
-  "version": "1.0.0",
-  "private": true,
-  "description": "Game 6 nguoi: 4 dan + 2 gian diep, realtime multiplayer",
-  "main": "server.js",
-  "scripts": { "start": "node server.js", "dev": "node server.js" },
-  "dependencies": {
-    "express": "^4.21.2",
-    "socket.io": "^4.8.1"
-  }
+  "name":"sauna-p8",
+  "version":"1.0.0",
+  "private":true,
+  "description":"Sauna P8 - social multiplayer pixel-inspired web world",
+  "main":"server.js",
+  "scripts":{"start":"node server.js"},
+  "dependencies":{"express":"^4.21.2","socket.io":"^4.8.1"}
 }
