@@ -2,99 +2,65 @@
 <html lang="vi">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ai Là Gián Điệp</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>AI LÀ CON BÓNG CHÚA ✨🌈</title>
 <script src="/socket.io/socket.io.js"></script>
 <style>
-:root{--bg:#0d1020;--panel:#171b31;--panel2:#202642;--text:#f6f7fb;--muted:#aeb5ca;--accent:#8b7cff;--danger:#ff667a;--good:#4ed29a}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#20264a 0,#0d1020 55%);color:var(--text);font-family:Inter,system-ui,Arial,sans-serif;min-height:100vh}
-.wrap{width:min(720px,100%);margin:auto;padding:20px 14px 40px}.logo{text-align:center;font-size:34px;font-weight:900;margin:10px 0 4px}.sub{text-align:center;color:var(--muted);margin-bottom:20px}
-.card{background:rgba(23,27,49,.94);border:1px solid #303653;border-radius:22px;padding:20px;margin:12px 0;box-shadow:0 14px 35px #0003}
-h2{margin:0 0 12px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:520px){.grid{grid-template-columns:1fr}}
-input,button{width:100%;min-height:48px;border-radius:13px;border:1px solid #3a4160;background:#101429;color:var(--text);padding:12px 14px;font-size:16px}
-button{background:var(--accent);border:0;font-weight:800;cursor:pointer}button.secondary{background:#2a3049}button.danger{background:var(--danger)}button:disabled{opacity:.45;cursor:not-allowed}
-.row{display:flex;gap:10px;align-items:center}.row>*{flex:1}.roomcode{font-size:30px;font-weight:900;letter-spacing:6px;text-align:center;padding:12px;background:#101429;border-radius:15px}
-.players{display:grid;grid-template-columns:1fr 1fr;gap:9px}.player{padding:12px;background:#101429;border-radius:13px;display:flex;justify-content:space-between}.dead{text-decoration:line-through;opacity:.45}
-.badge{display:inline-block;padding:5px 9px;border-radius:99px;background:#2a3049;color:var(--muted);font-size:12px}.spy{background:#5a2230;color:#ffd4da}.civil{background:#153d32;color:#bff8df}
-.word{font-size:38px;text-align:center;font-weight:950;padding:22px;border-radius:18px;background:linear-gradient(135deg,#302b68,#1d2547);margin:10px 0}
-.desc{padding:12px;background:#101429;border-radius:12px;margin:8px 0}.desc b{display:block;margin-bottom:5px}.muted{color:var(--muted)}.err{color:#ff9aa7;margin-top:8px}.ok{color:#70e5b3}.hidden{display:none!important}
-.voteGrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.voteBtn{background:#2a3049;text-align:left}.voteBtn.selected{outline:3px solid var(--accent)}
-.small{font-size:13px;color:var(--muted)}.center{text-align:center}.timer{font-size:24px;font-weight:900}
+:root{--bg:#10051d;--panel:rgba(34,11,52,.88);--text:#fff7ff;--muted:#d7b9df;--pink:#ff4fd8;--cyan:#36f6ff;--violet:#9d63ff;--yellow:#ffe66d;--green:#67f6a2;--red:#ff668f}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text)}body{background:radial-gradient(circle at 15% 5%,#51206d 0,transparent 28%),radial-gradient(circle at 90% 12%,#053e54 0,transparent 25%),linear-gradient(135deg,#10051d,#19092b 45%,#071d30);overflow-x:hidden}
+body:before,body:after{content:"";position:fixed;inset:auto;pointer-events:none;z-index:0;filter:blur(2px);animation:float 8s ease-in-out infinite}.wrap{position:relative;z-index:1;width:min(760px,100%);margin:auto;padding:16px 13px 60px}.logo{text-align:center;font-size:clamp(30px,8vw,48px);font-weight:1000;letter-spacing:-1px;text-shadow:0 0 7px #fff,0 0 20px var(--pink),0 0 42px var(--cyan);animation:rainbow 5s linear infinite}.sub{text-align:center;color:#ffe5ff;margin:3px 0 17px;font-weight:700}.sparkles{text-align:center;letter-spacing:12px;font-size:18px;animation:blink 1.7s infinite}
+.card{background:linear-gradient(145deg,rgba(43,13,63,.93),rgba(13,28,51,.88));border:1px solid rgba(255,255,255,.18);border-radius:24px;padding:18px;margin:13px 0;box-shadow:0 0 0 1px #ff4fd822,0 12px 40px #0008,0 0 28px #8b4cff22;backdrop-filter:blur(10px)}h2{margin:0 0 11px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:560px){.grid{grid-template-columns:1fr}}input,button,select{width:100%;min-height:50px;border-radius:15px;border:1px solid #ffffff25;background:#120c21;color:var(--text);padding:12px 14px;font-size:16px;outline:none}input:focus,select:focus{border-color:var(--cyan);box-shadow:0 0 15px #36f6ff55}button{border:0;background:linear-gradient(90deg,var(--pink),var(--violet),var(--cyan));background-size:200% 100%;font-weight:950;cursor:pointer;box-shadow:0 5px 20px #ff4fd833;animation:gradient 4s linear infinite}button.secondary{background:#30204a;box-shadow:none}button.danger{background:linear-gradient(90deg,#ff416c,#ff4b2b)}button.fun{background:linear-gradient(90deg,#24c6dc,#5433ff,#ff4fd8)}button:disabled{opacity:.4;cursor:not-allowed}.row{display:flex;gap:10px;align-items:center}.row>*{flex:1}.roomcode{font-size:31px;font-weight:1000;letter-spacing:7px;text-align:center;padding:13px;background:#0e0919;border-radius:17px;text-shadow:0 0 14px var(--cyan);border:1px dashed #36f6ff88}.players{display:grid;grid-template-columns:1fr 1fr;gap:9px}@media(max-width:480px){.players{grid-template-columns:1fr}}.player{padding:12px;background:#100b1c;border-radius:15px;display:flex;justify-content:space-between;gap:8px;border:1px solid #ffffff10}.dead{text-decoration:line-through;opacity:.45}.badge{display:inline-block;padding:5px 9px;border-radius:99px;background:#3a2252;color:#ffe9ff;font-size:12px;font-weight:800}.spy{background:#652344}.civil{background:#155242}.word{font-size:clamp(31px,9vw,46px);text-align:center;font-weight:1000;padding:23px;border-radius:21px;background:linear-gradient(135deg,#52208a,#142b66,#0b6a74);margin:10px 0;text-shadow:0 0 14px #fff;box-shadow:inset 0 0 28px #fff2,0 0 24px #ff4fd844}.desc{padding:12px;background:#0f0a19;border-radius:14px;margin:8px 0;border-left:3px solid var(--pink)}.desc b{display:block;margin-bottom:5px}.muted{color:var(--muted)}.err{color:#ff9fb8;margin-top:8px}.ok{color:#7dffbb}.hidden{display:none!important}.voteGrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.voteBtn{background:#30204a;text-align:left;animation:none}.voteBtn.selected{outline:3px solid var(--cyan);box-shadow:0 0 18px #36f6ff66}.small{font-size:13px;color:var(--muted)}.center{text-align:center}.timer{font-size:25px;font-weight:1000}.rainbowbar{height:7px;border-radius:99px;background:linear-gradient(90deg,#ff3cac,#ffcc70,#54ffcf,#36f6ff,#9d63ff,#ff3cac);background-size:300% 100%;animation:gradient 4s linear infinite;margin:10px 0 16px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}.actionLog{max-height:240px;overflow:auto}.actionItem{padding:9px 11px;border-radius:13px;background:#10091b;margin:6px 0;border:1px solid #ffffff0f}.notice{padding:12px 14px;border-radius:15px;background:linear-gradient(90deg,#ff4fd81a,#36f6ff1a);border:1px solid #ffffff14}.footer{opacity:.65;text-align:center;font-size:12px;margin-top:18px}
+@keyframes gradient{to{background-position:200% 0}}@keyframes rainbow{0%{filter:hue-rotate(0)}100%{filter:hue-rotate(360deg)}}@keyframes blink{50%{opacity:.45}}@keyframes float{50%{transform:translateY(-8px)}}
 </style>
 </head>
 <body>
 <div class="wrap" id="app">
-  <div class="logo">🕵️ AI LÀ GIÁN ĐIỆP</div>
-  <div class="sub">6 người • 4 Dân • 2 Gián điệp</div>
+  <div class="sparkles">✦ ✧ ✦ ✧ ✦</div>
+  <div class="logo">🌈 AI LÀ CON BÓNG CHÚA ✨</div>
+  <div class="sub">6 người • 4 người thường • 2 con bóng bí ẩn • càng diễn càng vui</div>
+  <div class="rainbowbar"></div>
   <section id="home" class="card">
-    <h2>Tạo hoặc tham gia phòng</h2>
-    <div class="grid">
-      <div><input id="nameCreate" placeholder="Tên của bạn"><button id="create" style="margin-top:8px">Tạo phòng</button></div>
-      <div><input id="nameJoin" placeholder="Tên của bạn"><input id="code" placeholder="MÃ PHÒNG" maxlength="6" style="margin-top:8px;text-transform:uppercase"><button id="join" style="margin-top:8px">Tham gia</button></div>
+    <h2>💅 Bước vào vũ trụ lấp lánh</h2>
+    <div class="notice">🎙️ Có hướng dẫn bằng giọng nữ tổng hợp trong trình duyệt. Bật loa để nghe “chị đại” dẫn game.</div>
+    <div class="grid" style="margin-top:12px">
+      <div><input id="nameCreate" placeholder="Tên bạn là gì, cưng?"><select id="modeCreate" style="margin-top:8px"><option value="4">👯 4 người — 1 con bóng</option><option value="6" selected>💃 6 người — 2 con bóng</option><option value="8">🌈 8 người — 2 con bóng</option></select><button id="create" style="margin-top:8px">✨ Tạo phòng</button></div>
+      <div><input id="nameJoin" placeholder="Tên bạn là gì, cưng?"><input id="code" placeholder="MÃ PHÒNG" maxlength="6" style="margin-top:8px;text-transform:uppercase"><button id="join" style="margin-top:8px">💖 Vào phòng</button></div>
     </div>
     <div id="homeErr" class="err"></div>
   </section>
 
   <section id="lobby" class="hidden">
-    <div class="card center"><div class="small">MÃ PHÒNG — gửi mã này cho bạn bè</div><div id="roomCode" class="roomcode"></div><button id="copy" class="secondary" style="margin-top:10px">Copy mã phòng</button></div>
-    <div class="card"><h2>Người chơi <span id="count"></span></h2><div id="players" class="players"></div></div>
-    <div class="card"><button id="start">Bắt đầu (cần đủ 6 người)</button><div id="lobbyErr" class="err"></div></div>
+    <div class="card center"><div class="small">MÃ PHÒNG — quăng cho hội bạn thân</div><div id="roomCode" class="roomcode"></div><div class="row" style="margin-top:10px"><button id="copy" class="secondary">📋 Copy mã</button><button id="speakLobby" class="fun">🎙️ Đọc hướng dẫn</button></div></div>
+    <div class="card"><h2>👑 Dàn cast <span id="count"></span></h2><div class="small">Chế độ: <b id="modeLabel"></b></div><div style="margin-top:9px"><select id="modeLobby"><option value="4">👯 4 người — 1 con bóng</option><option value="6">💃 6 người — 2 con bóng</option><option value="8">🌈 8 người — 2 con bóng</option></select></div><div id="players" class="players" style="margin-top:10px"></div></div>
+    <div class="card"><button id="start">🚨 BẮT ĐẦU ĐI MẤY MÁ</button><div id="lobbyErr" class="err"></div></div>
   </section>
 
   <section id="game" class="hidden">
-    <div class="card center"><span class="badge" id="phase"></span><div class="small" style="margin-top:8px">Vòng <b id="round"></b></div><div id="privateWord" class="word">Đang nhận từ khóa…</div><div id="roleText" class="muted"></div></div>
+    <div class="card center"><span class="badge" id="phase"></span><div class="small" style="margin-top:8px">Vòng <b id="round"></b></div><div id="privateWord" class="word">Đang nhận bí mật…</div><div id="roleText" class="muted"></div></div>
     <div id="turnCard" class="card"></div>
-    <div class="card"><h2>🗣️ Lịch sử mô tả</h2><div id="descriptions"></div></div>
-    <div id="voteCard" class="card hidden"></div>
-    <div id="tieCard" class="card hidden"></div>
-    <div id="resultCard" class="card hidden"></div>
+    <div id="actionCard" class="card"><h2>💦🔨 Quậy hội bạn</h2><div class="small">Chọn một người đang sống rồi thả miếng. Chỉ là hiệu ứng vui, không ai bị thương ngoài đời nha 😭</div><select id="actionTarget" style="margin-top:9px"></select><div class="actions" style="margin-top:9px"><button id="water" class="fun">💦 XỊT NƯỚC</button><button id="brick" class="danger">🧱 NÉM GẠCH</button></div><div id="actionLog" class="actionLog" style="margin-top:10px"></div></div>
+    <div class="card"><h2>🗣️ Sàn catwalk mô tả</h2><div id="descriptions"></div></div>
+    <div id="voteCard" class="card hidden"></div><div id="tieCard" class="card hidden"></div><div id="resultCard" class="card hidden"></div>
   </section>
+  <div class="footer">Bản gốc fan-made • cơ chế lấy cảm hứng từ social deduction, không dùng tài sản thương hiệu bên thứ ba.</div>
 </div>
 <script>
-const socket=io();
-let me=null, room=null, privateInfo=null, selected=null;
-const $=id=>document.getElementById(id);
-function show(id,on=true){$(id).classList.toggle("hidden",!on)}
-function err(id,msg){$(id).textContent=msg||""}
-function phaseName(p){return ({lobby:"PHÒNG CHỜ",describing:"MÔ TẢ TỪ KHÓA",voting:"BỎ PHIẾU",tie:"HÒA PHIẾU",ended:"KẾT THÚC"})[p]||p}
-function render(){
- if(!room)return;
- $("roomCode").textContent=room.code; $("count").textContent=`${room.players.length}/6`;
- $("players").innerHTML=room.players.map(p=>`<div class="player ${p.alive?'':'dead'}"><span>${escapeHtml(p.name)} ${p.id===room.hostId?'👑':''}</span><span class="badge">${p.alive?'Đang chơi':'Đã loại'}</span></div>`).join("");
- show("home",false); show("lobby",room.phase==="lobby"); show("game",room.phase!=="lobby");
- if(room.phase==="lobby"){ $("start").disabled=room.players.length!==6; return; }
- $("phase").textContent=phaseName(room.phase); $("round").textContent=room.round;
- if(privateInfo){$("privateWord").textContent=privateInfo.word;$("roleText").textContent=privateInfo.isSpy?"Bạn là 🕵️ GIÁN ĐIỆP — hãy hòa vào đám đông.":"Bạn là 👨‍🌾 NGƯỜI DÂN — tìm ra 2 gián điệp."}
- $("descriptions").innerHTML=room.descriptions.length?room.descriptions.map(d=>`<div class="desc"><b>${escapeHtml(d.playerName)}</b>${escapeHtml(d.text)}</div>`).join(""):`<div class="muted">Chưa có ai mô tả.</div>`;
- const mePlayer=room.players.find(p=>p.id===me);
- if(room.phase==="describing"){
-   const mine=room.currentSpeakerId===me;
-   $("turnCard").innerHTML=mine?`<h2>🎤 Đến lượt bạn</h2><input id="descInput" maxlength="120" placeholder="Một câu mô tả, không nói thẳng từ khóa"><button id="sendDesc" style="margin-top:9px">Gửi mô tả</button><div class="small" style="margin-top:8px">Không đọc đúng từ khóa, không đánh vần, không nói từ đồng nghĩa quá lộ.</div>`:`<h2>⏳ Đang chờ</h2><p class="muted">Đến lượt: <b>${escapeHtml(room.players.find(p=>p.id===room.currentSpeakerId)?.name||"…")}</b></p>`;
-   show("voteCard",false);show("tieCard",false);show("resultCard",false);
-   if(mine)$("sendDesc").onclick=()=>{socket.emit("game:describe",{text:$("descInput").value},r=>{if(!r.ok)alert(r.error)})};
- } else if(room.phase==="voting" || room.phase==="tie"){
-   $("turnCard").innerHTML=`<h2>🔎 Bầu chọn</h2><p class="muted">${room.phase==="tie"?"Có người hòa phiếu. Chỉ chọn giữa các ứng viên hòa.":"Chọn người bạn nghi là gián điệp."}</p>`;
-   const ids=room.phase==="tie"?room.tieCandidates:room.players.filter(p=>p.alive).map(p=>p.id);
-   const card=room.phase==="tie"?$("tieCard"):$("voteCard"); show(room.phase==="tie"?"voteCard":"tieCard",false);show(room.phase==="tie"?"tieCard":"voteCard",true);
-   card.innerHTML=`<div class="voteGrid">${ids.map(id=>{const p=room.players.find(x=>x.id===id);return `<button class="voteBtn ${selected===id?'selected':''}" data-id="${id}">👤 ${escapeHtml(p.name)}</button>`}).join("")}</div><button id="confirmVote" style="margin-top:10px" ${selected?'':'disabled'}>Xác nhận bỏ phiếu</button>`;
-   card.querySelectorAll("[data-id]").forEach(b=>b.onclick=()=>{selected=b.dataset.id;render()});
-   $("confirmVote").onclick=()=>{socket.emit(room.phase==="tie"?"game:tieVote":"game:vote",{targetId:selected},r=>{if(!r.ok)alert(r.error);else selected=null})};
-   show("resultCard",false);
- } else if(room.phase==="ended"){
-   show("voteCard",false);show("tieCard",false);show("resultCard",true);
-   const spyWin=room.winner==="spy";
-   $("resultCard").innerHTML=`<div class="center"><div style="font-size:50px">${spyWin?"🕵️":"🎉"}</div><h2>${spyWin?"GIÁN ĐIỆP THẮNG":"NGƯỜI DÂN THẮNG"}</h2><p class="muted">Danh sách đã loại:</p>${room.eliminated.map(x=>`<div class="desc">${escapeHtml(x.name)} — <b>${x.role==="spy"?"GIÁN ĐIỆP":"NGƯỜI DÂN"}</b> — ${escapeHtml(x.word)}</div>`).join("")}<button id="newGame" style="margin-top:10px">Ván mới</button></div>`;
-   $("newGame").onclick=()=>socket.emit("game:new");
-   $("turnCard").innerHTML=`<h2>Kết thúc ván</h2><p class="muted">${me===room.hostId?"Bạn là chủ phòng, có thể tạo ván mới.":"Chờ chủ phòng tạo ván mới."}</p>`;
- }
-}
+const socket=io();let me=null,room=null,privateInfo=null,selected=null;
+const $=id=>document.getElementById(id);const show=(id,on=true)=>$(id).classList.toggle("hidden",!on);const err=(id,msg)=>$(id).textContent=msg||"";
+function phaseName(p){return({lobby:"PHÒNG CHỜ",describing:"MÔ TẢ TỪ KHÓA",voting:"BỎ PHIẾU",tie:"HÒA PHIẾU",ended:"KẾT THÚC"})[p]||p}
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
-$("create").onclick=()=>socket.emit("room:create",{name:$("nameCreate").value},r=>{if(r.ok){me=r.id;$("roomCode").textContent=r.code}else err("homeErr",r.error)});
-$("join").onclick=()=>socket.emit("room:join",{name:$("nameJoin").value,code:$("code").value},r=>{if(r.ok){me=r.id}else err("homeErr",r.error)});
-$("start").onclick=()=>socket.emit("game:start",{},r=>{if(r&&!r.ok)err("lobbyErr",r.error)});
-$("copy").onclick=()=>navigator.clipboard?.writeText(room.code).then(()=>$("copy").textContent="Đã copy!");
-socket.on("room:update",r=>{room=r;render()});
-socket.on("game:private",x=>{privateInfo=x;render()});
+function speak(text){if(!('speechSynthesis' in window)){alert('Trình duyệt này không hỗ trợ đọc giọng.');return} speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='vi-VN';u.rate=.94;u.pitch=1.08;const voices=speechSynthesis.getVoices();u.voice=voices.find(v=>/^vi/i.test(v.lang))||voices.find(v=>/Vietnam|Vietnamese/i.test(v.name))||null;speechSynthesis.speak(u)}
+function playSound(type){const A=window.AudioContext||window.webkitAudioContext;if(!A)return;const c=new A();const g=c.createGain();g.connect(c.destination);g.gain.value=.08;const now=c.currentTime;if(type==='water'){for(let i=0;i<18;i++){const o=c.createOscillator();o.type='sine';o.frequency.value=600+Math.random()*1300;o.connect(g);o.start(now+i*.025);o.stop(now+i*.025+.035)}}else{const o=c.createOscillator();o.type='square';o.frequency.setValueAtTime(140,now);o.frequency.exponentialRampToValueAtTime(55,now+.25);o.connect(g);o.start(now);o.stop(now+.28);const b=c.createBuffer(1,c.sampleRate*.12,c.sampleRate);const d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*(1-i/d.length);const n=c.createBufferSource();n.buffer=b;const ng=c.createGain();ng.gain.value=.15;n.connect(ng);ng.connect(c.destination);n.start(now+.08)}}
+function render(){if(!room)return;$("roomCode").textContent=room.code;$("modeLabel").textContent=room.maxPlayers===4?"4 người • 1 con bóng":room.maxPlayers===8?"8 người • 2 con bóng":"6 người • 2 con bóng";$("modeLobby").value=String(room.maxPlayers);$("modeLobby").disabled=room.hostId!==me;$("count").textContent=`${room.players.length}/${room.maxPlayers}`;$("players").innerHTML=room.players.map(p=>`<div class="player ${p.alive?'':'dead'}"><span>${escapeHtml(p.name)} ${p.id===room.hostId?'👑':''}</span><span class="badge">${p.alive?'Đang quẩy':'Đã bị loại'}</span></div>`).join('');show('home',false);show('lobby',room.phase==='lobby');show('game',room.phase!=='lobby');if(room.phase==='lobby'){$('start').disabled=room.players.length!==room.maxPlayers;return}
+$("phase").textContent=phaseName(room.phase);$("round").textContent=room.round;if(privateInfo){$("privateWord").textContent=privateInfo.word;$("roleText").textContent=privateInfo.isSpy?'Bạn là 🕵️ CON BÓNG BÍ ẨN — diễn sâu vào, cưng.':'Bạn là 👑 NGƯỜI THƯỜNG — soi ai đang diễn lố.'}
+const alive=room.players.filter(p=>p.alive);$("actionTarget").innerHTML=alive.filter(p=>p.id!==me).map(p=>`<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
+$("descriptions").innerHTML=room.descriptions.length?room.descriptions.map(d=>`<div class="desc"><b>💋 ${escapeHtml(d.playerName)}</b>${escapeHtml(d.text)}</div>`).join(''):'<div class="muted">Chưa ai lên sàn. Im lặng thế này là có mùi rồi đó…</div>';
+$("actionLog").innerHTML=(room.actions||[]).slice(-15).reverse().map(a=>`<div class="actionItem">${a.kind==='water'?'💦':'🧱'} <b>${escapeHtml(a.from)}</b> ${a.kind==='water'?'xịt nước vào':'ném gạch ống vào'} <b>${escapeHtml(a.to)}</b><div class="small">${escapeHtml(a.line)}</div></div>`).join('')||'<div class="muted">Chưa có drama. Ai mở hàng đi?</div>';
+const meP=room.players.find(p=>p.id===me);
+if(room.phase==='describing'){const mine=room.currentSpeakerId===me;$("turnCard").innerHTML=mine?`<h2>🎤 Tới lượt bạn, nữ hoàng!</h2><input id="descInput" maxlength="120" placeholder="Mô tả sao cho người ta không đoán ra…"><button id="sendDesc" style="margin-top:9px">💅 THẢ MIẾNG</button><div class="small" style="margin-top:8px">Cấm nói thẳng từ khóa. Càng tự nhiên càng đáng ngờ 😭</div>`:`<h2>⏳ Đang hóng</h2><p class="muted">Micro đang thuộc về: <b>${escapeHtml(room.players.find(p=>p.id===room.currentSpeakerId)?.name||'…')}</b></p>`;show('voteCard',false);show('tieCard',false);show('resultCard',false);if(mine)$('sendDesc').onclick=()=>{socket.emit('game:describe',{text:$('descInput').value},r=>{if(!r.ok)alert(r.error);else speak('Cảm ơn cưng. Mời người tiếp theo lên sàn.')})}}
+else if(room.phase==='voting'||room.phase==='tie'){ $("turnCard").innerHTML=`<h2>🔎 Giờ tới phần soi nhau</h2><p class="muted">${room.phase==='tie'?'Hòa rồi cưng. Đấu lại giữa các ứng viên.':'Ai có vibe đáng ngờ nhất? Chọn bằng trái tim, nhưng đừng để trái tim mù quáng.'}</p>`;const ids=room.phase==='tie'?room.tieCandidates:alive.map(p=>p.id);const card=room.phase==='tie'?$('tieCard'):$('voteCard');show(room.phase==='tie'?'voteCard':'tieCard',false);show(room.phase==='tie'?'tieCard':'voteCard',true);card.innerHTML=`<div class="voteGrid">${ids.map(id=>{const p=room.players.find(x=>x.id===id);return`<button class="voteBtn ${selected===id?'selected':''}" data-id="${id}">👤 ${escapeHtml(p.name)}</button>`}).join('')}</div><button id="confirmVote" style="margin-top:10px" ${selected?'':'disabled'}>💘 CHỐT LÁ PHIẾU</button>`;card.querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>{selected=b.dataset.id;render()});$('confirmVote').onclick=()=>{socket.emit(room.phase==='tie'?'game:tieVote':'game:vote',{targetId:selected},r=>{if(!r.ok)alert(r.error);else{selected=null;speak('Lá phiếu đã được cất vào tim.');}})};show('resultCard',false)}
+else if(room.phase==='ended'){show('voteCard',false);show('tieCard',false);show('resultCard',true);const spyWin=room.winner==='spy';$('resultCard').innerHTML=`<div class="center"><div style="font-size:64px">${spyWin?'🕵️‍♀️💅':'👑🌈'}</div><h2>${spyWin?'CON BÓNG CHÚA THẮNG!':'NGƯỜI THƯỜNG THẮNG!'}</h2><p class="muted">Ai đã diễn? Ai đã bị soi?</p>${room.eliminated.map(x=>`<div class="desc">${escapeHtml(x.name)} — <b>${x.role==='spy'?'CON BÓNG':'NGƯỜI THƯỜNG'}</b> — ${escapeHtml(x.word)}</div>`).join('')}<button id="newGame" style="margin-top:10px">✨ VÁN MỚI, DRAMA MỚI</button></div>`;$('newGame').onclick=()=>socket.emit('game:new');$("turnCard").innerHTML=`<h2>💋 Hết ván</h2><p class="muted">${me===room.hostId?'Chủ phòng ơi, bấm ván mới đi!':'Chờ chủ phòng mở ván mới.'}</p>`;speak(spyWin?'Con bóng chúa thắng! Xin chúc mừng các cưng!':'Người thường thắng! Drama đã được giải quyết!')}
+}
+$('create').onclick=()=>socket.emit('room:create',{name:$('nameCreate').value,maxPlayers:Number($('modeCreate').value)},r=>{if(r.ok){me=r.id}else err('homeErr',r.error)});$('modeLobby').onchange=()=>socket.emit('game:setMode',{maxPlayers:Number($('modeLobby').value)},r=>{if(!r.ok){alert(r.error);render()}});$('join').onclick=()=>socket.emit('room:join',{name:$('nameJoin').value,code:$('code').value},r=>{if(r.ok){me=r.id}else err('homeErr',r.error)});$('start').onclick=()=>socket.emit('game:start',{},r=>{if(r&&!r.ok)err('lobbyErr',r.error)});$('copy').onclick=()=>navigator.clipboard?.writeText(room.code).then(()=>$('copy').textContent='Đã copy!');$('speakLobby').onclick=()=>speak('Chào mừng các cưng đến với Ai Là Con Bóng Chúa! Sáu người vào phòng, hai người nhận từ khóa khác. Mỗi người mô tả một câu. Đừng nói lộ từ khóa. Sau đó cả hội bỏ phiếu. Ai diễn lố thì tự chịu nha!');$('water').onclick=()=>{const t=$('actionTarget').value;if(!t)return;playSound('water');socket.emit('game:action',{kind:'water',targetId:t})};$('brick').onclick=()=>{const t=$('actionTarget').value;if(!t)return;playSound('brick');socket.emit('game:action',{kind:'brick',targetId:t})};socket.on('room:update',r=>{room=r;render()});socket.on('game:private',x=>{privateInfo=x;render();speak(x.isSpy?'Cưng ơi, bí mật của cưng là '+x.word+'. Diễn cho thật mượt nhé!':'Cưng là người thường. Từ khóa của cưng là '+x.word+'. Soi hai người đang diễn!')});socket.on('game:action',a=>{if(a.kind==='water')playSound('water');else playSound('brick');speak(a.line)});
 </script>
-</body>
-</html>
+</body></html>
