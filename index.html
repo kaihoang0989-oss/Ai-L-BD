@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ai Là Gián Điệp</title>
+<script src="/socket.io/socket.io.js"></script>
+<style>
+:root{--bg:#0d1020;--panel:#171b31;--panel2:#202642;--text:#f6f7fb;--muted:#aeb5ca;--accent:#8b7cff;--danger:#ff667a;--good:#4ed29a}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#20264a 0,#0d1020 55%);color:var(--text);font-family:Inter,system-ui,Arial,sans-serif;min-height:100vh}
+.wrap{width:min(720px,100%);margin:auto;padding:20px 14px 40px}.logo{text-align:center;font-size:34px;font-weight:900;margin:10px 0 4px}.sub{text-align:center;color:var(--muted);margin-bottom:20px}
+.card{background:rgba(23,27,49,.94);border:1px solid #303653;border-radius:22px;padding:20px;margin:12px 0;box-shadow:0 14px 35px #0003}
+h2{margin:0 0 12px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:520px){.grid{grid-template-columns:1fr}}
+input,button{width:100%;min-height:48px;border-radius:13px;border:1px solid #3a4160;background:#101429;color:var(--text);padding:12px 14px;font-size:16px}
+button{background:var(--accent);border:0;font-weight:800;cursor:pointer}button.secondary{background:#2a3049}button.danger{background:var(--danger)}button:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:10px;align-items:center}.row>*{flex:1}.roomcode{font-size:30px;font-weight:900;letter-spacing:6px;text-align:center;padding:12px;background:#101429;border-radius:15px}
+.players{display:grid;grid-template-columns:1fr 1fr;gap:9px}.player{padding:12px;background:#101429;border-radius:13px;display:flex;justify-content:space-between}.dead{text-decoration:line-through;opacity:.45}
+.badge{display:inline-block;padding:5px 9px;border-radius:99px;background:#2a3049;color:var(--muted);font-size:12px}.spy{background:#5a2230;color:#ffd4da}.civil{background:#153d32;color:#bff8df}
+.word{font-size:38px;text-align:center;font-weight:950;padding:22px;border-radius:18px;background:linear-gradient(135deg,#302b68,#1d2547);margin:10px 0}
+.desc{padding:12px;background:#101429;border-radius:12px;margin:8px 0}.desc b{display:block;margin-bottom:5px}.muted{color:var(--muted)}.err{color:#ff9aa7;margin-top:8px}.ok{color:#70e5b3}.hidden{display:none!important}
+.voteGrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.voteBtn{background:#2a3049;text-align:left}.voteBtn.selected{outline:3px solid var(--accent)}
+.small{font-size:13px;color:var(--muted)}.center{text-align:center}.timer{font-size:24px;font-weight:900}
+</style>
+</head>
+<body>
+<div class="wrap" id="app">
+  <div class="logo">🕵️ AI LÀ GIÁN ĐIỆP</div>
+  <div class="sub">6 người • 4 Dân • 2 Gián điệp</div>
+  <section id="home" class="card">
+    <h2>Tạo hoặc tham gia phòng</h2>
+    <div class="grid">
+      <div><input id="nameCreate" placeholder="Tên của bạn"><button id="create" style="margin-top:8px">Tạo phòng</button></div>
+      <div><input id="nameJoin" placeholder="Tên của bạn"><input id="code" placeholder="MÃ PHÒNG" maxlength="6" style="margin-top:8px;text-transform:uppercase"><button id="join" style="margin-top:8px">Tham gia</button></div>
+    </div>
+    <div id="homeErr" class="err"></div>
+  </section>
+
+  <section id="lobby" class="hidden">
+    <div class="card center"><div class="small">MÃ PHÒNG — gửi mã này cho bạn bè</div><div id="roomCode" class="roomcode"></div><button id="copy" class="secondary" style="margin-top:10px">Copy mã phòng</button></div>
+    <div class="card"><h2>Người chơi <span id="count"></span></h2><div id="players" class="players"></div></div>
+    <div class="card"><button id="start">Bắt đầu (cần đủ 6 người)</button><div id="lobbyErr" class="err"></div></div>
+  </section>
+
+  <section id="game" class="hidden">
+    <div class="card center"><span class="badge" id="phase"></span><div class="small" style="margin-top:8px">Vòng <b id="round"></b></div><div id="privateWord" class="word">Đang nhận từ khóa…</div><div id="roleText" class="muted"></div></div>
+    <div id="turnCard" class="card"></div>
+    <div class="card"><h2>🗣️ Lịch sử mô tả</h2><div id="descriptions"></div></div>
+    <div id="voteCard" class="card hidden"></div>
+    <div id="tieCard" class="card hidden"></div>
+    <div id="resultCard" class="card hidden"></div>
+  </section>
+</div>
+<script>
+const socket=io();
+let me=null, room=null, privateInfo=null, selected=null;
+const $=id=>document.getElementById(id);
+function show(id,on=true){$(id).classList.toggle("hidden",!on)}
+function err(id,msg){$(id).textContent=msg||""}
+function phaseName(p){return ({lobby:"PHÒNG CHỜ",describing:"MÔ TẢ TỪ KHÓA",voting:"BỎ PHIẾU",tie:"HÒA PHIẾU",ended:"KẾT THÚC"})[p]||p}
+function render(){
+ if(!room)return;
+ $("roomCode").textContent=room.code; $("count").textContent=`${room.players.length}/6`;
+ $("players").innerHTML=room.players.map(p=>`<div class="player ${p.alive?'':'dead'}"><span>${escapeHtml(p.name)} ${p.id===room.hostId?'👑':''}</span><span class="badge">${p.alive?'Đang chơi':'Đã loại'}</span></div>`).join("");
+ show("home",false); show("lobby",room.phase==="lobby"); show("game",room.phase!=="lobby");
+ if(room.phase==="lobby"){ $("start").disabled=room.players.length!==6; return; }
+ $("phase").textContent=phaseName(room.phase); $("round").textContent=room.round;
+ if(privateInfo){$("privateWord").textContent=privateInfo.word;$("roleText").textContent=privateInfo.isSpy?"Bạn là 🕵️ GIÁN ĐIỆP — hãy hòa vào đám đông.":"Bạn là 👨‍🌾 NGƯỜI DÂN — tìm ra 2 gián điệp."}
+ $("descriptions").innerHTML=room.descriptions.length?room.descriptions.map(d=>`<div class="desc"><b>${escapeHtml(d.playerName)}</b>${escapeHtml(d.text)}</div>`).join(""):`<div class="muted">Chưa có ai mô tả.</div>`;
+ const mePlayer=room.players.find(p=>p.id===me);
+ if(room.phase==="describing"){
+   const mine=room.currentSpeakerId===me;
+   $("turnCard").innerHTML=mine?`<h2>🎤 Đến lượt bạn</h2><input id="descInput" maxlength="120" placeholder="Một câu mô tả, không nói thẳng từ khóa"><button id="sendDesc" style="margin-top:9px">Gửi mô tả</button><div class="small" style="margin-top:8px">Không đọc đúng từ khóa, không đánh vần, không nói từ đồng nghĩa quá lộ.</div>`:`<h2>⏳ Đang chờ</h2><p class="muted">Đến lượt: <b>${escapeHtml(room.players.find(p=>p.id===room.currentSpeakerId)?.name||"…")}</b></p>`;
+   show("voteCard",false);show("tieCard",false);show("resultCard",false);
+   if(mine)$("sendDesc").onclick=()=>{socket.emit("game:describe",{text:$("descInput").value},r=>{if(!r.ok)alert(r.error)})};
+ } else if(room.phase==="voting" || room.phase==="tie"){
+   $("turnCard").innerHTML=`<h2>🔎 Bầu chọn</h2><p class="muted">${room.phase==="tie"?"Có người hòa phiếu. Chỉ chọn giữa các ứng viên hòa.":"Chọn người bạn nghi là gián điệp."}</p>`;
+   const ids=room.phase==="tie"?room.tieCandidates:room.players.filter(p=>p.alive).map(p=>p.id);
+   const card=room.phase==="tie"?$("tieCard"):$("voteCard"); show(room.phase==="tie"?"voteCard":"tieCard",false);show(room.phase==="tie"?"tieCard":"voteCard",true);
+   card.innerHTML=`<div class="voteGrid">${ids.map(id=>{const p=room.players.find(x=>x.id===id);return `<button class="voteBtn ${selected===id?'selected':''}" data-id="${id}">👤 ${escapeHtml(p.name)}</button>`}).join("")}</div><button id="confirmVote" style="margin-top:10px" ${selected?'':'disabled'}>Xác nhận bỏ phiếu</button>`;
+   card.querySelectorAll("[data-id]").forEach(b=>b.onclick=()=>{selected=b.dataset.id;render()});
+   $("confirmVote").onclick=()=>{socket.emit(room.phase==="tie"?"game:tieVote":"game:vote",{targetId:selected},r=>{if(!r.ok)alert(r.error);else selected=null})};
+   show("resultCard",false);
+ } else if(room.phase==="ended"){
+   show("voteCard",false);show("tieCard",false);show("resultCard",true);
+   const spyWin=room.winner==="spy";
+   $("resultCard").innerHTML=`<div class="center"><div style="font-size:50px">${spyWin?"🕵️":"🎉"}</div><h2>${spyWin?"GIÁN ĐIỆP THẮNG":"NGƯỜI DÂN THẮNG"}</h2><p class="muted">Danh sách đã loại:</p>${room.eliminated.map(x=>`<div class="desc">${escapeHtml(x.name)} — <b>${x.role==="spy"?"GIÁN ĐIỆP":"NGƯỜI DÂN"}</b> — ${escapeHtml(x.word)}</div>`).join("")}<button id="newGame" style="margin-top:10px">Ván mới</button></div>`;
+   $("newGame").onclick=()=>socket.emit("game:new");
+   $("turnCard").innerHTML=`<h2>Kết thúc ván</h2><p class="muted">${me===room.hostId?"Bạn là chủ phòng, có thể tạo ván mới.":"Chờ chủ phòng tạo ván mới."}</p>`;
+ }
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+$("create").onclick=()=>socket.emit("room:create",{name:$("nameCreate").value},r=>{if(r.ok){me=r.id;$("roomCode").textContent=r.code}else err("homeErr",r.error)});
+$("join").onclick=()=>socket.emit("room:join",{name:$("nameJoin").value,code:$("code").value},r=>{if(r.ok){me=r.id}else err("homeErr",r.error)});
+$("start").onclick=()=>socket.emit("game:start",{},r=>{if(r&&!r.ok)err("lobbyErr",r.error)});
+$("copy").onclick=()=>navigator.clipboard?.writeText(room.code).then(()=>$("copy").textContent="Đã copy!");
+socket.on("room:update",r=>{room=r;render()});
+socket.on("game:private",x=>{privateInfo=x;render()});
+</script>
+</body>
+</html>
